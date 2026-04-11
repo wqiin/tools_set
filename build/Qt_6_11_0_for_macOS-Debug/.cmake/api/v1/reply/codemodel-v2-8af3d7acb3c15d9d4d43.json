@@ -1,0 +1,79 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-60dfa9b1471d00615781.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Helper",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Helper::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Helper-Debug-375ebeafcff62ba8c33f.json",
+					"name" : "Helper",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Helper_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Helper_autogen-Debug-6cdc87e35b3b706ff70d.json",
+					"name" : "Helper_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Helper_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Helper_autogen_timestamp_deps-Debug-045d82e812563787cf62.json",
+					"name" : "Helper_autogen_timestamp_deps",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/hola/Desktop/qt_practice/Helper/build/Qt_6_11_0_for_macOS-Debug",
+		"source" : "/Users/hola/Desktop/qt_practice/Helper"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}

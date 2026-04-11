@@ -1,0 +1,9 @@
+/Users/hola/Desktop/qt_practice/Helper/build/Qt_6_11_0_for_macOS-Debug/CMakeFiles/Helper.dir
+/Users/hola/Desktop/qt_practice/Helper/build/Qt_6_11_0_for_macOS-Debug/CMakeFiles/edit_cache.dir
+/Users/hola/Desktop/qt_practice/Helper/build/Qt_6_11_0_for_macOS-Debug/CMakeFiles/rebuild_cache.dir
+/Users/hola/Desktop/qt_practice/Helper/build/Qt_6_11_0_for_macOS-Debug/CMakeFiles/list_install_components.dir
+/Users/hola/Desktop/qt_practice/Helper/build/Qt_6_11_0_for_macOS-Debug/CMakeFiles/install.dir
+/Users/hola/Desktop/qt_practice/Helper/build/Qt_6_11_0_for_macOS-Debug/CMakeFiles/install/local.dir
+/Users/hola/Desktop/qt_practice/Helper/build/Qt_6_11_0_for_macOS-Debug/CMakeFiles/install/strip.dir
+/Users/hola/Desktop/qt_practice/Helper/build/Qt_6_11_0_for_macOS-Debug/CMakeFiles/Helper_autogen_timestamp_deps.dir
+/Users/hola/Desktop/qt_practice/Helper/build/Qt_6_11_0_for_macOS-Debug/CMakeFiles/Helper_autogen.dir
