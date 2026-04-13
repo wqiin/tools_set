@@ -67,6 +67,44 @@ namespace Helper{
             return tokens;
         }
 
+
+        static std::string join_string(const std::vector<std::string> & vec_strs, const char delimter = ' ')
+        {
+            if(vec_strs.empty()){
+                return {};
+            }
+
+            size_t total_size = 0;
+            for(const auto & str : vec_strs){
+                total_size += str.size();
+            }
+
+            std::string result;
+            result.reserve(total_size);
+
+            for(auto ii = 0; ii < vec_strs.size(); ii++){
+                result += vec_strs.at(ii);
+
+                if(ii != vec_strs.size() - 1){
+                    result += delimter;
+                }
+            }
+
+            return result;
+        }
+
+        template<class... Args>
+        static std::string join_string(const char delimter, const std::string & str_first, Args... args)
+        {
+            std::string result = str_first;
+
+            if constexpr(sizeof...(args) > 0){
+                result += delimter + join_string(delimter, args...);
+            }
+
+            return result;
+        }
+
         /*!
          *  @brief          字符串替换给定的字串
          *  @param          [std::string& src] 源字符串

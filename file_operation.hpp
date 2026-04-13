@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <string_view>
+#include <optional>
 
 namespace Helper{
     namespace file{
@@ -11,6 +12,7 @@ namespace Helper{
         {
             std::error_code ec;
             auto exists = std::filesystem::exists(std::filesystem::path(strFile), ec);
+
             return !ec && exists;
         }
 

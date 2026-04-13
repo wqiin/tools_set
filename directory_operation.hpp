@@ -1,10 +1,14 @@
 #ifndef DIRECTORY_OPERATION_H
 #define DIRECTORY_OPERATION_H
 
-class directory_operation
+namespace Helper
 {
-public:
-    directory_operation();
-};
+namespace directory {
+
+
+
+
+}
+}
 
 #endif // DIRECTORY_OPERATION_H

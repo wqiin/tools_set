@@ -1,6 +1,9 @@
 #include "time_operation.hpp"
 #include "string_operation.hpp"
 #include "general_operation.hpp"
+#include "json_operation.hpp"
+#include "xml_operation.hpp"
+
 
 #include <iostream>
 
@@ -17,6 +20,10 @@
 
 
 #include "std_map_ex.hpp"
+
+// #include "iguana/json_writer.hpp"
+
+//#include "nlohmann/json.hpp"
 
 
 void mutex_usage()
@@ -325,7 +332,6 @@ void mutex_usage()
 }
 
 
-
 void test()
 {
     std::cout << Helper::get_current_format_datetime() << std::endl;;
@@ -521,11 +527,11 @@ void test2()
     // std::this_thread::sleep_for(3000ms);
     // std::cout << "time elapsed for " << timer.elapsed_time<std::chrono::nanoseconds>() << std::endl;
 
-    auto paRet = Helper::time_elapsed::measure([]->std::string{
+    auto paRet = Helper::time_elapsed::measure([](int a)->std::string{
         std::this_thread::sleep_for(3000ms);
-
-        return {"Hello World"};
-    });
+        std::cout << a << std::endl;
+        return std::string{"Hello World"};
+    }, 53);
 
     std::cout << "Ret Value: " << paRet.first << " elapsed time for:  " << paRet.second << std::endl;
 
@@ -533,5 +539,67 @@ void test2()
         std::this_thread::sleep_for(3000ms);
     });
 
-    std::cout << "elapsed time for:  " << ret << std::endl;
+    std::cout << "elapsed time for:  " << ret.second << std::endl;
+}
+
+
+//结构体的变量名称需要与格式化字符串中的字段名称一致
+struct Student
+{
+    std::string name;
+    int nAge;
+    std::string address;
+    std::string father_name;
+    int grade;
+    std::string mother_name;
+};
+
+struct some_obj {
+    std::string_view name;
+    int age;
+};
+YLT_REFL(some_obj, name, age);
+
+
+void test3()
+{
+    auto ret =  Helper::string::join_string(' ', "Hello", "World", "!");
+    std::cout << ret << std::endl;
+
+    const char * js = R"({"name":"Hola", "nAge":23, "address":"SC China", "father_name":"Hello", "grade":12, "mother_name":"Nihao"})";
+
+    Student stu;
+    std::string strErrMsg;
+    auto b = Helper::json::json_2_obj(std::string(js), stu, &strErrMsg);
+    if(!b){
+        std::cout << strErrMsg << std::endl;
+    }
+
+    std::cout << "Name: " << stu.name << std::endl;
+
+    Student stu_out;
+    auto ret_js = Helper::json::obj_2_json(stu, true);
+    std::cout << "Ret json: " << ret_js << std::endl;
+
+
+
+    std::string_view xml = R"(
+    <!-- Hello world -->
+    <root>
+      <name>buke</name>
+      <age>30</age>
+    </root>
+    )";
+
+    some_obj obj;
+    auto ret_xml = Helper::xml::xml_to_obj<some_obj, std::string_view>(xml, obj, &strErrMsg);
+    if(!ret_xml){
+        std::cout << "xml decode error message: " << strErrMsg << std::endl;
+    }else{
+        std::cout << "xml decode: " << obj.age << "-------" << obj.name << std::endl;
+    }
+
+    //这里返回 - <some_obj><name>buke</name><age>30</age></some_obj>
+    auto str_ret_xml = Helper::xml::obj_to_xml(obj);
+    std::cout << "xml from string: " << str_ret_xml << std::endl;
 }

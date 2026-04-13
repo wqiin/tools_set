@@ -15,10 +15,6 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 add_executable(Helper
   main.cpp
   file_operation.hpp
-
-
-
-
   time_operation.hpp
   directory_operation.hpp file_operation.hpp json_operation.hpp string_operation.hpp time_operation.hpp xml_operation.hpp
   general_operation.hpp
@@ -30,6 +26,13 @@ add_executable(Helper
   qthread.hpp
   qt_delayed_timer.hpp
 )
+
+#新增第三方库的头文件搜索路径
+target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/iguana)
+target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/nlohmann/include)
+target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/nlohmann/single_include)
+target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/xpack)
+
 target_link_libraries(Helper PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 
 include(GNUInstallDirs)

@@ -8,8 +8,9 @@
 #include <cstdint>
 #include <chrono>
 #include <type_traits>
+#include <variant>
 
-
+#include<QElapsedTimer>
 
 namespace Helper
 {
@@ -184,15 +185,17 @@ namespace Helper
         std::string m_name;
 
     public:
-        time_elapsed(const std::string & name = "") : m_name(name), m_start_time_point(Clock_t::now()) {}
+        time_elapsed(const std::string & name = "") : m_name(name), m_start_time_point(Clock_t::now())  {}
 
-        void reset()
+        //重新开始计时
+        void reset() noexcept
         {
             m_start_time_point = Clock_t::now();
         }
 
+        //返回花费的时间
         template<class time_t = std::chrono::milliseconds>
-        std::uint64_t elapsed_time()
+        std::uint64_t elapsed_time() const noexcept
         {
             auto end = Clock_t::now();
             auto elapsed = std::chrono::duration_cast<time_t>(end - m_start_time_point).count();
@@ -200,32 +203,36 @@ namespace Helper
             return elapsed;
         }
 
-        template<class Func, class ...Args, class Duration_t = std::chrono::milliseconds>
+        //测量传入可调用对象花费的时间 - 可变模版参数后面，不能再跟默认的模版参数
+        template<class Duration_t = std::chrono::milliseconds, class Func, class ...Args>
         [[nodiscard]] static auto measure(Func && func, Args&& ... args)
         {
             //判断一个“可调用对象”能不能被调用，并且返回值能不能转换成指定类型
             static_assert(std::is_invocable_v<Func, Args...>, "func MUST be callable with given arguments.");
 
             using Result_t = std::invoke_result_t<Func, Args...>;//函数返回值类型，有可能是void
-            //using Ret_t = std::conditional<std::is_void_v<Result_t>, std::monostate, Result_t>;
+            using Ret_t = std::conditional_t<std::is_void_v<Result_t>, std::monostate, Result_t>;
 
             auto now = Clock_t::now();
-            if constexpr(std::is_void_v<Result_t>){
+            if constexpr(std::is_same_v<std::monostate, Ret_t>){
                 //在模版里面调用传入的可调用对象和参数，使用完美转发？
                 std::invoke(std::forward<Func>(func), std::forward<Args>(args)...);
 
                 auto end = Clock_t::now();
                 std::int64_t elapsed = std::chrono::duration_cast<Duration_t>(end - now).count();
 
-                return elapsed;
+                return std::pair<Ret_t, std::int64_t>{std::monostate{}, elapsed};
             }else{
                 auto result = std::invoke(std::forward<Func>(func), std::forward<Args>(args)...);
 
                 auto end = Clock_t::now();
                 auto elapsed = std::chrono::duration_cast<Duration_t>(end - now).count();
 
-                return std::pair<Result_t, std::int64_t>{result, elapsed};
+                return std::pair<Ret_t, std::int64_t>{std::move(result), elapsed};
             }
+
+            //剔除const、voltaile和引用修饰符，得到纯粹的类型
+            //std::is_same_v<std::remove_cvref<T>, std::remove_cvref<U>>;
         }
     };
 
