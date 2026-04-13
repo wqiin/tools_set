@@ -14,9 +14,9 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
 add_executable(Helper
   main.cpp
-  file_operation.hpp
+  filesystem_operation.hpp
   time_operation.hpp
-  directory_operation.hpp file_operation.hpp json_operation.hpp string_operation.hpp time_operation.hpp xml_operation.hpp
+  filesystem_operation.hpp json_operation.hpp string_operation.hpp time_operation.hpp xml_operation.hpp
   general_operation.hpp
   test_Demo.cpp
 
@@ -25,6 +25,7 @@ add_executable(Helper
   general_define.hpp
   qthread.hpp
   qt_delayed_timer.hpp
+  custom_error_code.hpp
 )
 
 #新增第三方库的头文件搜索路径

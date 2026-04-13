@@ -3,7 +3,8 @@
 #include "general_operation.hpp"
 #include "json_operation.hpp"
 #include "xml_operation.hpp"
-
+#include "filesystem_operation.hpp"
+#include "custom_error_code.hpp"
 
 #include <iostream>
 
@@ -602,4 +603,8 @@ void test3()
     //这里返回 - <some_obj><name>buke</name><age>30</age></some_obj>
     auto str_ret_xml = Helper::xml::obj_to_xml(obj);
     std::cout << "xml from string: " << str_ret_xml << std::endl;
+
+
+    std::error_code ec = CustomErrCode::OK;
+
 }
