@@ -608,3 +608,80 @@ void test3()
     std::error_code ec = CustomErrCode::OK;
 
 }
+
+
+void test4()
+{
+    std::cout << "current_path: " << Helper::fs::get_current_path() << std::endl;
+
+    std::cout << "current_path: " << Helper::fs::absolute_path("/HEllo") << std::endl;
+
+    Helper::fs::create_directories("./Hello/World");//在当前程序运行路径下，递归创建目录
+
+    Helper::fs::rename_directory("./Hello", "./Hola");
+
+    std::function<int()> lambda = []()->int
+    {
+
+    };
+    using TT = std::decay_t<decltype(lambda)>;
+    TT tt;
+
+    using T = std::decay_t<decltype(test1)>;
+    T a;
+
+    const volatile int && int_cv = 32;
+    using ORI_CVT = decltype(int_cv);//得到被CV和引用修饰的原始类型
+    using CVT = std::decay_t<decltype(int_cv)>;//去除CV和引用限定符
+    CVT cvt;
+    ORI_CVT ori_cvt = 23;
+
+    //remove_cvref_t与std::decay_t完全一样
+    using RMCVREF = std::remove_cvref_t<ORI_CVT>;
+    RMCVREF rmcvref = 23;
+
+    using INT_ARR = int[10];
+    using A = std::decay_t<INT_ARR>;//A已经退化为指针
+    using B = std::remove_cvref_t<INT_ARR>;//还是int的数组
+
+    using C = std::unwrap_ref_decay_t<INT_ARR>;
+    using D = std::unwrap_reference_t<INT_ARR>;
+
+    //std::ref();
+
+    //变相在容器中存放‘引用’
+    int na = 2;
+    int nb = 2;
+    std::vector<std::reference_wrapper<int>> vec_ref;
+    vec_ref.push_back(na);
+    vec_ref.push_back(std::ref(nb));//把变量 x 包装成一个“可以复制的引用”（std::reference_wrapper）
+    vec_ref.at(0).get() = 23;//访问引用包装器中的原始引用
+
+    {
+        namespace fs = std::filesystem;
+        //使用std::ref向线程中传入变量引用
+        auto lam = [](int & x){
+            x = 23;
+        };
+
+        //std::ref->std::reference_wrapper, 且std::reference_wrapper重载了operator T&() const， 所以会隐式转换;
+        std::jthread j(lam, std::ref(na));
+
+        //抑或是
+        auto g = std::bind(lam, std::ref(nb));
+        g();
+    }
+
+
+    std::unwrap_ref_decay_t;//用于向模板函数中传入引用变量时，在模板中得到引用类型，同时去除CV修饰
+    std::unwrap_reference_t;//用于向模板函数中传入引用变量时，在模板中得到引用类型，即从std::reference_wrapper<T>得到T&类型
+
+    A aaa;
+    B bb;
+
+}
+
+void test5()
+{
+
+}

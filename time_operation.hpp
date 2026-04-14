@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <variant>
 
-#include<QElapsedTimer>
+//#include<QElapsedTimer>
 
 namespace Helper
 {
@@ -141,6 +141,15 @@ namespace Helper
         return ms;
     }
 
+    template<class Time_t = std::chrono::seconds>
+    static std::uint64_t get_timespamp()
+    {
+        using namespace std::chrono;
+        auto now_s = system_clock::now();
+        auto secs = duration_cast<Time_t>(now_s.time_since_epoch()).count();
+        return secs;
+    }
+
     /*!
      *  @brief          获取当前时间戳（字符串形式返回）
      *  @param          []
@@ -176,7 +185,7 @@ namespace Helper
         return local_tm;
     }
 
-    //计时器，计算花费的时间
+    //用以计算某段代码执行时所花费的时间
     class time_elapsed{
         using Clock_t = std::chrono::steady_clock;
 
@@ -193,7 +202,7 @@ namespace Helper
             m_start_time_point = Clock_t::now();
         }
 
-        //返回花费的时间
+        //返回花费的时间， 默认返回时间单位为毫秒
         template<class time_t = std::chrono::milliseconds>
         std::uint64_t elapsed_time() const noexcept
         {
@@ -230,9 +239,6 @@ namespace Helper
 
                 return std::pair<Ret_t, std::int64_t>{std::move(result), elapsed};
             }
-
-            //剔除const、voltaile和引用修饰符，得到纯粹的类型
-            //std::is_same_v<std::remove_cvref<T>, std::remove_cvref<U>>;
         }
     };
 
