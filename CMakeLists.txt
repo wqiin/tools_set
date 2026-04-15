@@ -33,6 +33,8 @@ target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/iguana
 target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/nlohmann/include)
 target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/nlohmann/single_include)
 target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/xpack)
+target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/pprint/include)
+
 
 target_link_libraries(Helper PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 

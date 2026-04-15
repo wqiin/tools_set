@@ -20,7 +20,6 @@
 
 #include <iostream>
 
-//include <concepts>
 
 #include "general_define.hpp"
 

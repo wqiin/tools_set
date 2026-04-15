@@ -16,6 +16,8 @@
 #include <mutex>
 #include <chrono>
 
+
+
 //C++23标准引入
 #include <flat_map>
 
@@ -681,7 +683,71 @@ void test4()
 
 }
 
+
+//C++20
+#include <span>
+#include <ranges>
+
+
+template<class T>
+auto print_items = [](std::span<const T> data)//const限制修改span中的元素
+{
+    int nIndex = 0;
+    for(const auto & item : data)
+    {
+        std::cout << "item " << nIndex++ << " :" << item << std::endl;
+    }
+};
+
+#include "pprint.hpp"
+#include <algorithm>
 void test5()
 {
+    auto cur_tp = Helper::get_timespamp<std::chrono::milliseconds>();
+    std::cout << cur_tp << std::endl;
 
+    int inta = 23;
+    int intb = 32;
+
+    std::swap(inta, intb);
+
+
+    std::vector<int> vecInt{1, 2, 3, 4, 5, 6, 7};
+    int arr[] = {5, 4, 3, 2, 1, 0};
+    print_items<int>(vecInt);
+    print_items<int>(arr);//会自动推导为std::span<int>
+
+    std::vector<std::string> vecStr{"Hello", "World", "Hola", "Nihao"};
+    print_items<std::string>(vecStr);
+
+    std::span s(arr);//拷贝构造
+    std::span s1 = arr;//复制构造
+
+
+
+    auto front_3 = s.first<2>();//用模版访问切片
+    auto front_3_ = s.first(2);//用参数访问切片
+
+    print_items<int>(front_3);
+    print_items<int>(front_3_);
+
+
+
+    auto even = [](int n){ return n % 2 == 0;};
+
+    //惰性执行（lazy）！, view在使用的时候，才会去计算 运算符 | ;
+    std::ranges::filter_view<std::ranges::ref_view<std::vector<int>>, decltype(even)> view = vecInt | std::views::filter(even);// | std::views::transform([](int x){return x * x;});
+    //std::ranges 是“更安全、更强大、更可组合”的 STL 算法与容器接口体系
+
+    //这里std::views::transform只会在访问view1的时候才会去访问vecInt,并根据views计算得到结果
+    //lazy evaluation（惰性执行）
+    auto view1 = vecInt | std::views::filter(even) | std::views::transform([](int x){return x * x;});
+
+    auto it = std::ranges::find_if(vecInt, even);
+
+
+    pprint::PrettyPrinter prt(std::cout);
+    prt.quotes(true);//在打印字符串时，加上引号
+    prt.compact(true);//紧凑打印
+    prt.print(vecStr);
 }
