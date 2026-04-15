@@ -188,7 +188,7 @@ namespace Helper{
             // }
         }
 
-        //你这个类本质是：“在作用域结束时自动执行代码”的工具（RAII / Scope Guard）
+        //“在作用域结束时自动执行代码”的工具（RAII / Scope Guard）
         template<typename func_t>
         class scope_guard{
             public:
@@ -214,7 +214,7 @@ namespace Helper{
                 }
 
                 //这个函数保证不会抛异常（no exception）
-                //如果“说了不抛，但实际抛了”会怎样？ - 直接终止程序：std::terminate() 💥
+                //如果实际抛了会直接终止程序：std::terminate() 💥
                 //为什么要用 noexcept？ -
                 //1. 提升性能（非常重要）；
                 //2. 提供“强异常安全保证” - 告诉编译器 & 使用者：这个函数不会失败
