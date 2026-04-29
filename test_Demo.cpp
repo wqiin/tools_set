@@ -684,10 +684,11 @@ void test4()
 }
 
 
-//C++20
-#include <span>
-#include <ranges>
-
+// template<class L, class R>
+// auto hello_lambda(L && left, R && right, Func_t<T(L, R)> & func)
+// {
+//     return std::invoke(func, std::forward<L>(left), std::forward<R>(right));
+// }
 
 template<class T>
 auto print_items = [](std::span<const T> data)//const限制修改span中的元素
@@ -701,6 +702,8 @@ auto print_items = [](std::span<const T> data)//const限制修改span中的元�
 
 #include "pprint.hpp"
 #include <algorithm>
+
+#include "template_demo.hpp"
 void test5()
 {
     auto cur_tp = Helper::get_timespamp<std::chrono::milliseconds>();
@@ -745,9 +748,114 @@ void test5()
 
     auto it = std::ranges::find_if(vecInt, even);
 
+    //std::ranges::range_reference_t<int>;
+
 
     pprint::PrettyPrinter prt(std::cout);
     prt.quotes(true);//在打印字符串时，加上引号
     prt.compact(true);//紧凑打印
     prt.print(vecStr);
+
+    auto ret = Helper::time_elapsed::measure<std::chrono::seconds>([](){
+        std::cout << "Hello World\n";
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    });
+
+    std::cout << "last for ;" << ret.second << std::endl;
+
+    std::string str = "123";
+    std::string str_ret;
+
+    auto ret_int = Helper::string::string_to_number<long int>(str);
+    std::cout << "ret int: " << ret_int.value_or(0) << std::endl;
+
+    std::function<std::string(int, int)> hola = [](int a, int b)->std::string
+    {
+        return std::to_string(a) + ":    " + std::to_string(b);
+    };
+
+    //std::cout << hello_lambda<int, int, std::string>(23, 32, hola);
+}
+
+
+template<class Func_t, class...Args>
+auto safe_calling(Func_t && fun, Args&& ...args)
+{
+    if constexpr(std::is_invocable_v<Func_t&&, Args&&...>){
+        return std::invoke(std::forward<Func_t>(fun), std::forward<Args>(args)...);
+    }else{
+        return nullptr;
+    }
+}
+
+void test6()
+{
+
+    auto local = [](int a, float f)->std::string
+    {
+        std::cout << "Hello World from local lambda\n";
+        std::cout << "a = " << a << " f=" << f << std::endl;
+
+        return "Return value";
+    };
+
+    auto local_void = []->void{
+        std::cout << "Lambda without return vale\n";
+    };
+
+    auto ret = safe_calling(local, 23, 32.0f);
+    std::cout << "Ret val:" << ret << std::endl;
+
+    safe_calling(local_void);
+
+    // float f1 = 1.00000001;
+    // float f2 = 1.00000002;
+
+    // std::cout << "float equal: " << is_equal(f1, f2);
+
+
+    // array<int, 5> arr1;
+    // std::cout << "array size: " << arr1.size() << std::endl;
+    // arr1[1] = 2;
+
+
+     std::vector<int, JJ::allocator<int>> vec{1, 2, 3, 4};
+    // std::array<int, 3> arr;
+
+    // //std::vector<std::string> vec_str;
+
+    // std::list<std::string> lst;
+
+    // //std::find();//本质上就是一个循环遍历的结果
+
+    // //std::alloc;
+
+    // for(auto item : vec){
+    //     std::cout << item;
+    // }
+
+    // func(12.0);
+
+    // std::queue<int> que;
+
+    // std::source_location loc = std::source_location::current();//
+    // std::cout << "file name: " << loc.file_name() << "  line id: " << loc.line() << "  func name: " << loc.function_name() << std::endl;
+
+    // add(2, 3);
+    // add(2.3, 3.0);
+
+    //concept in lambda
+    auto f = []<integral T>(T a){
+        return a * a;
+    };
+
+    std::cout << f(3) << std::endl;
+
+
+    default_val<int> dv1;
+    default_val<std::uint32_t> dv2;
+    default_val<std::string> dv3;
+    default_val<float> dv4;
+    default_val<double> dv5;
+
 }

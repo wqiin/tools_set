@@ -26,6 +26,12 @@ add_executable(Helper
   qthread.hpp
   qt_delayed_timer.hpp
   custom_error_code.hpp
+  allocator.hpp
+
+  template_demo.hpp
+  event_bus_demo.cpp
+  type_traits_demo.hpp
+  template_practice.hpp
 )
 
 #新增第三方库的头文件搜索路径
@@ -34,6 +40,12 @@ target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/nlohma
 target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/nlohmann/single_include)
 target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/xpack)
 target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/pprint/include)
+
+#数据总线库
+target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/event_bus/lib/src/)
+add_subdirectory(${PROJECT_SOURCE_DIR}/3rd_party/event_bus/lib/)
+target_link_libraries(Helper PRIVATE Dexode::EventBus)
+
 
 
 target_link_libraries(Helper PRIVATE Qt${QT_VERSION_MAJOR}::Core)

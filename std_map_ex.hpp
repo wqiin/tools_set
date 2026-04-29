@@ -21,10 +21,15 @@ namespace Helper
     };
 
 
+    //模版的前置声明，指定默认参数，第四个参数为一个模板参数
+    template<class K, class V, class Mtx_t = NonMutex, template<class, class> class MpContainer = std::map>
+    class MapEx;
+
     //带默认值的类型模板参数
     //模板模板参数（template template parameter）意思是： 参数本身是一个“类模板”，而不是普通类型
     //因为在MpContainer作为一个没有实例化的模版，且需要依赖K和V这两个类型参数
-    template<class K, class V, class Mtx_t = NonMutex, template<class, class> class MpContainer = std::map>
+    //模板定义，省略默认参数，否则会报重复定义
+    template<class K, class V, class Mtx_t/* = NonMutex*/, template<class, class> class MpContainer/* = std::map*/>//前置声明中已经指定了默认参数，这里定义则不需要，否则会报错
     class MapEx : public MpContainer<K, V>
     {
         using BaseMp= MpContainer<K, V>;

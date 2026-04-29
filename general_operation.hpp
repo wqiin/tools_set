@@ -27,6 +27,23 @@ namespace Helper{
     namespace general{
         using namespace Helper::emun_definition;
 
+        //比较两个浮点数是否相等
+        template<class T>
+        bool is_equal_f(T t1, T t2)
+        {
+            static_assert(std::is_floating_point_v<T>, "T MUST being floating type.");
+
+            const T abs_epsilon = static_cast<T>(1e-6);   // 绝对误差，处理接近0的小数允许的误差
+            const T rel_epsilon = static_cast<T>(1e-6);   // 相对误差，处理较大的数允许的误差
+
+            T diff = std::fabs(t1 - t2);
+            if (diff <= abs_epsilon) {
+                return true;
+            }
+
+            return diff <= rel_epsilon * std::max(std::fabs(t1), std::fabs(t2));
+        }
+
         template<typename T>
         static std::shared_ptr<T> copy_as_ptr(const T & obj)
         {

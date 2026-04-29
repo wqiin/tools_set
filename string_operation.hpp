@@ -8,7 +8,8 @@
 #include <cstdio>
 #include <sstream>
 #include <optional>
-
+#include <charconv>
+#include <type_traits>
 
 namespace Helper{
     namespace string{
@@ -130,13 +131,22 @@ namespace Helper{
          *  @date           2026-04-03
         */
         template<typename Number>
-        static std::optional<Number> string_to_number(const std::string & str)
+        static std::enable_if_t<std::is_arithmetic_v<Number>, std::optional<Number>>
+        string_to_number(const std::string & str)
         {
             Number num;
-            std::stringstream ss(str);
-            ss >> num;
+            auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), num);
 
-            return (ss.eof() || ss.good()) ? num : std::nullopt;
+            if(ec != std::errc() || ptr != str.data() + str.size()){
+                return std::nullopt;
+            }
+
+            return num;
+
+            //Number num;
+            // std::stringstream ss(str);
+            // ss >> num;
+            //return (ss.eof() || ss.good()) ? num : std::nullopt;
         }
 
 
