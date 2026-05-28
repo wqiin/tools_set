@@ -1,10 +1,241 @@
-#ifndef TEMPLATE_PRACTICE_HPP
+#ifndef TEMPLATE_PRACTICE_HP  P
 #define TEMPLATE_PRACTICE_HPP
 
 #include <type_traits>
 #include <vector>
 #include <iostream>
+#include <memory>
+#include <thread>
+#include <functional>
 
+
+
+template<typename T, typename = void>
+struct has_clear_int : std::false_type {};
+template<typename T>
+struct has_clear_int<T, std::void_t<decltype(std::declval<T>().clear(std::declval<int>()))>> : std::true_type {};
+
+//检测一个类型是否支持 + 运算符（两个const T&相加）：
+template<typename T, typename = void>
+struct is_addable :std::false_type {};
+
+template<typename T>
+struct is_addable<T, std::void_t<decltype(std::declval<const T&>() + std::declval<const T&>())>> : std::true_type {};
+
+template<typename T, typename = void>
+struct is_range : std::false_type {};
+
+//void_t 是个变参模板，它会把所有 decltype 都求值一遍（实际是检查合法性）。只要有一个非法，整个替换就失败，偏特化丢弃。
+template<typename T>
+struct is_range<T, std::void_t<
+    decltype(std::declval<T>().begin()),
+    decltype(std::declval<T>().end()),
+
+    // 可以加更多要求，比如 begin() 返回的迭代器支持 != 比较
+    decltype(std::declval<T>().begin() != std::declval<T>().end())
+    >> : std::true_type {};
+
+
+
+template<class T>
+struct printerImpl{
+    static void print(const T & t){}
+
+    static constexpr size_t buffer_size = 32;
+    static constexpr size_t buffer_align = alignof(std::max_align_t);
+
+};
+
+
+
+template<>
+struct printerImpl<int>{
+    //特化版本的函数，所以函数签名可以完全不同
+    static void print(int t){
+    }
+};
+
+
+template<class T>
+class printer{
+public:
+    void print(const T & t){
+        printerImpl<T>::print(t);
+    }
+};
+
+
+//enable_shared_from_this 允许从 this 安全地获得一个 shared_ptr。
+class Worker : public std::enable_shared_from_this<Worker> {
+    public:
+        void startAsync() {
+            // 获取 shared_ptr<Worker>
+            std::weak_ptr<Worker> weak_this = shared_from_this();
+            std::thread t([weak_this]() {
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                    if (auto sp = weak_this.lock()) {// 提升为 shared_ptr
+                        sp->doWork();
+                    }
+                }
+            );
+
+            t.detach();
+        }
+
+        ~Worker() {
+            std::cout << "Worker destroyed" << std::endl;
+        }
+
+        void doWork(){
+            std::cout << "Worker working..." << std::endl;
+        }
+    };
+
+void shared_from_this_usage() {
+    auto w = std::make_shared<Worker>();
+    w->startAsync();
+    std::cout << "Waiting for the thread to execute." << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
+    std::function<void()> fun;
+}
+
+template<typename T>
+    auto get_size(const T& t)
+    {
+        if constexpr (requires { t.size(); })// C++20 的 requires
+        {
+            return t.size();
+    }else if constexpr (std::is_array_v<T>)
+    {
+        return sizeof(T) / sizeof(std::decay_t<decltype(t[0])>);
+    }else
+    {
+        return 0;
+    }
+}
+
+
+//C++14 允许普通函数模板直接写 auto 返回类型，编译器会自动推导，而且推导过程仍然遵循 SFINAE——如果推导失败，这个重载就会被丢弃。
+template<typename C>
+auto front(C& c)
+{
+    return c.front();// 如果 C 没有 front()，推导失败 -> SFINAE 丢弃此模板
+}
+
+
+// 检测 T 是否有 foo() 成员函数
+template<typename T>
+struct has_foo{
+private:
+    template<typename U>
+    static auto test(int) -> decltype(std::declval<U>().foo(), std::true_type{});
+
+    template<typename U>
+    static auto test(...)->std::false_type;
+
+public:
+    static constexpr bool value = decltype(test<T>(0))::value;
+};
+
+
+//实现方法2
+template<typename, typename = void>
+struct has_foo_2 : std::false_type
+{
+};
+
+template<typename T>
+struct has_foo_2<T, std::void_t<decltype(std::declval<T>().foo())>> : std::true_type
+{
+};
+
+//检测静态成员函数 foo是否存在
+template<typename, typename = void>
+struct has_static_member : std::false_type
+{
+};
+
+template<typename T>
+struct has_static_member<T, std::void_t<decltype(T::foo())>> : std::false_type
+{
+};
+
+
+//编译期判断一个类型是不是 std::vector
+template<typename T>
+struct is_vector : std::false_type {};
+
+// 偏特化：匹配任何 std::vector<U, Alloc>
+template<typename U, typename Alloc>
+struct is_vector<std::vector<U, Alloc>> : std::true_type {};
+
+static_assert(is_vector<std::vector<int>>::value);// true
+static_assert(!is_vector<int>::value);// false
+
+
+
+
+//目标：typelist<int, double, char> 转成 typelist<int*, double*, char*>。
+template<class ...Args>
+struct typelist{
+};
+
+template<typename List, template<typename> class MetaFunc>
+struct map;
+
+        // 递归边界
+template<template<typename> class MetaFunc>
+struct map<typelist<>, MetaFunc>
+{
+    using type = typelist<>;
+};
+
+// 递归步骤
+template<typename Head, typename... Tail, template<typename> class MetaFunc>
+struct map<typelist<Head, Tail...>, MetaFunc>
+{
+    using type = typelist<
+    typename MetaFunc<Head>::type, // 变换 Head
+        typename map<typelist<Tail...>, MetaFunc>::type// 递归处理 Tail
+        >;
+};
+
+// 元函数：加指针
+template<typename T>
+struct add_pointer
+{
+    using type = T*;
+};
+
+using Original = typelist<int, double, char>;
+using Result = map<Original, add_pointer>::type;    // typelist<int*, double*, char*>
+
+
+//这是数学里的：全序关系（total order），意思是：任意两个元素都能比较
+//C++20，以判断类型是否支持完整的大小关系比较，即同时满足==、!=、 <、<=、>、>=这些都合法。并且：逻辑一致
+template<class T>
+constexpr bool is_total_ordered = std::totally_ordered<T>;
+
+
+//C++20的concept， 意思是：两个对象能判断：“是否相等”，即==、！=运算符合法
+template<class T>
+constexpr bool is_compared = std::equality_comparable<T>;
+
+
+
+//编译期间和运行期间的不同实现
+constexpr int func_mluti(int x)
+{
+    if (std::is_constant_evaluated())//编译期间执行的分支 -C++20 ss
+    {
+        return x * 2;
+    }
+    else//运行时执行的分支
+    {
+        return x * 3;
+    }
+}
 
 
 //1 写一个 trait：has_size<T> // 判断 T 是否有 .size() 成员函数
@@ -207,12 +438,25 @@ auto add(T a, U b)
 }
 
 
+//*****模板有特殊规则：编译器允许它们在多个翻译单元重复出现，因此多个cpp文件中include相同的头文件，也不错编译错误
+//函数模板，更多是为了生存运行期的代码，而不是在编译期间调用
+
+//constexpr 函数 ≠ 一定编译期执行
+
 //6. 判断函数是否可调用 is_callable<F, Args...>
 template<class Func_t, class...Args>
 inline constexpr bool is_callable(Func_t && func, Args&& ... args)
 {
-    return std::is_invocable_v<Func_t &&, Args&&...>;
+    return std::is_invocable_v<Func_t &&, Args&&...>;//加上&&，以保留Func_t原有的引用属性；
 }
+
+//判断函数是否可调用，不需要实现为函数 - 元编程是在编译器得到，而函数是在运行时得到结果，
+template<class Func_t, class...Args>
+constexpr bool fun_is_callable = std::is_invocable_v<Func_t &&, Args&&...>;
+
+
+
+
 
 
 void is_callable_usage()

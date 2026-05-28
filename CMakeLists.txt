@@ -12,6 +12,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
+
+
+include_directories(
+    /opt/homebrew/include
+)
+
+link_directories(
+    /opt/homebrew/lib
+)
+
+
 add_executable(Helper
   main.cpp
   filesystem_operation.hpp
@@ -32,6 +43,9 @@ add_executable(Helper
   event_bus_demo.cpp
   type_traits_demo.hpp
   template_practice.hpp
+  folly_usage.cpp
+  pmr_usage.cpp
+  type_eraser.hpp
 )
 
 #新增第三方库的头文件搜索路径
@@ -40,6 +54,7 @@ target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/nlohma
 target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/nlohmann/single_include)
 target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/xpack)
 target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/pprint/include)
+target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/httplib)
 
 #数据总线库
 target_include_directories(Helper PRIVATE ${PROJECT_SOURCE_DIR}/3rd_party/event_bus/lib/src/)
@@ -49,6 +64,8 @@ target_link_libraries(Helper PRIVATE Dexode::EventBus)
 
 
 target_link_libraries(Helper PRIVATE Qt${QT_VERSION_MAJOR}::Core)
+
+target_link_libraries(Helper PRIVATE folly)
 
 include(GNUInstallDirs)
 install(TARGETS Helper

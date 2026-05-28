@@ -9,7 +9,29 @@
 
 
 
+//模板为什么通常写头文件？因为：模板实例化发生在：编译阶段
+//译器必须看到完整定义。则无法生成代码。
 
+std::string_view get_view()
+{
+    std::string temp = "I'll be gone soon";
+    return temp;// temp 隐式转成 string_view，然后 temp 析构了
+
+    std::multiplies<int>{}; // 函数对象
+
+    /*
+    template <>
+    struct multiplies<void> {
+        template <class _T1, class _T2>
+    _LIBCPP_CONSTEXPR_SINCE_CXX14 _LIBCPP_HIDE_FROM_ABI auto operator()(_T1&& __t, _T2&& __u) const
+    noexcept(noexcept(std::forward<_T1>(__t) * std::forward<_T2>(__u))) //
+    -> decltype(std::forward<_T1>(__t) * std::forward<_T2>(__u)) {
+    return std::forward<_T1>(__t) * std::forward<_T2>(__u);
+    }
+    typedef void is_transparent;
+    };
+    */
+}
 
 
 int common_func(int )
@@ -290,6 +312,8 @@ void decltype_usage_1()
     int x = 1;
     int & refX = x;
 
+    char ch = 'a';
+    using Ch_t = decltype(ch + 1);//int 类型提升
 
     //decltype想同事获取变量的声明类型和表达式的真实类型
     decltype(x + 1) xx = 23;//int 获得了变量的声明类型 - 特殊规则

@@ -29,6 +29,20 @@
 //#include "nlohmann/json.hpp"
 
 
+// 写法极其无脑
+int sum(std::initializer_list<int> list)
+{
+    int total = 0;
+    for(auto x : list)
+        total += x;
+
+    return total;
+
+
+    std::tuple<int, double, std::string> hello;
+}
+
+
 void mutex_usage()
 {
     std::mutex m1;
@@ -45,6 +59,7 @@ void mutex_usage()
         {
 
             {
+                //只能加锁一次
                 std::unique_lock<std::mutex> l(m1);//构造时调用 m1.lock(), 析构时自动 unlock()
                 //此时没有调用l.unlock(), l仍然持有锁，不能调用lock，否则会死锁
                 //可以移动构造
@@ -614,6 +629,8 @@ void test3()
 
 void test4()
 {
+    std::FILE * file;
+
     std::cout << "current_path: " << Helper::fs::get_current_path() << std::endl;
 
     std::cout << "current_path: " << Helper::fs::absolute_path("/HEllo") << std::endl;
@@ -624,8 +641,8 @@ void test4()
 
     std::function<int()> lambda = []()->int
     {
-
     };
+
     using TT = std::decay_t<decltype(lambda)>;
     TT tt;
 
@@ -857,5 +874,33 @@ void test6()
     default_val<std::string> dv3;
     default_val<float> dv4;
     default_val<double> dv5;
+
+
+    //没有继承关系、没有标准转换关系、不是 void*，编译器拒绝转换；static_cast 的价值在于它只接受有定义的转换
+    int * pInt = nullptr;
+    //double * pF = static_cast<double *>(pInt);
+
+
+    //dynamic_cast 也能做交叉转型，在多重继承的平行基类之间转型：
+    struct A { virtual ~A() = default; int a; };
+    struct B{ virtual ~B() = default; int b; };
+    struct C : A, B {int c; };
+
+    C* c = new C();
+    B* bp = c;                      // 上行转型，隐式
+    A* ap = dynamic_cast<A*>(bp);   // 交叉转型：B* → A*，运行时检查
+
+
+    /*
+     如果你写 (C*)b_ptr，C 风格转换的解析规则是确定性的
+        （按 const_cast →
+        static_cast →
+        static_cast+const_cast →
+        reinterpret_cast →
+        reinterpret_cast+const_cast 的顺序尝试，第一个适用的即被选中），
+        但只看代码你无法判断编译器选了哪种语义。具名转换消除了这个歧义。
+    */
+
+
 
 }

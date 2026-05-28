@@ -13,6 +13,32 @@
 #include "allocator.hpp"
 
 
+[[deprecated("Such the functionality has been deprected since Qt 4.x")]] void func_being_deprecated()
+{
+
+}
+
+constexpr bool is_function_ = std::is_function_v<decltype(func_being_deprecated)>;//true
+constexpr bool is_lval_ref = std::is_lvalue_reference_v<int &>;//true
+constexpr bool is_rval_ref = std::is_rvalue_reference_v<int&&>;//true
+
+//C++14支持的lambda泛华
+auto c14_generical_template = [](auto & a, auto & b){
+    return a + b;
+};
+
+/*这里会被展开如下的结构
+class Lambda{
+ public:
+
+         template<typename T>
+         auto operator()(T x) const
+ {
+  return x + x;
+}
+};
+*/
+
 //使用完美转发，调用传入的可调用对象z
 template<class L, class R, class T>
 auto hello_lambda(L && left, R && right, std::function<T(L, R)> && func)
@@ -33,7 +59,7 @@ decltype(auto) hello_world(Func_t && func, Args&& ...args)
     //需要使用完美转发到std::bind的对象中
     auto p = std::make_shared<std::packaged_task<Result_t()>>(std::bind(std::forward<Func_t>(func), std::forward<Args>(args)...));
 
-    // //将calling放入到容器里面，依次调用即可
+    // //将calling放入到容器里面，依次调用即可，
     // auto calling = [p]{
     //     *p();
     // };
@@ -58,6 +84,7 @@ template<class T>
 void impl(T , std::true_type)
 {
     std::cout << "integral\n";
+    func_being_deprecated();//调用废弃的函数
 }
 
 template<class T>
@@ -437,7 +464,7 @@ public:
 };
 
 template<>
-class default_val<bool, true>{
+class default_val<bool, std::is_arithmetic_v<bool>>{
 public:
     default_val()
     {
@@ -1054,6 +1081,7 @@ constexpr bool has_attri<T, std::void_t<typename T::value>>()
 template<class T, class U>
 void func_partical_specialization(T, U)
 {
+    ;//std::is_floating_point_v
 }
 
 /*

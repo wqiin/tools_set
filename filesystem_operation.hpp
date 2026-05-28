@@ -27,7 +27,7 @@ namespace Helper{
         static bool file_exists(std::string_view strFile, std::string * err_msg = nullptr) noexcept
         {
             std::error_code ec;
-            auto exists = std::filesystem::exists(std::filesystem::path(strFile), ec);
+            auto exists = fs::exists(fs::path(strFile), ec);
             if(ec && err_msg){
                 *err_msg = ec.message();
             }
